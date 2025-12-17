@@ -1,0 +1,4 @@
+<%- | Hash		$data
+| -%>
+#cloud-config
+<%= $data.to_yaml %>

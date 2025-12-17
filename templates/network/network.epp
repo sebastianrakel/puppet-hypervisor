@@ -1,0 +1,56 @@
+<%- | String $interface_name,
+      Optional[Variant[Enum['dhcp'], Stdlib::IP::Address::V4]] $address_v4 = undef,
+      Optional[Stdlib::IP::Address::V6] $address_v6 = undef,
+      Optional[Stdlib::IP::Address::V4] $dns_v4 = undef,
+      Array[Integer] $vlans = [],
+      Array[String] $bridges = [],
+      Boolean $is_dhcp_server = false,
+      Optional[Integer] $dhcp_pool_offset = undef,
+      Optional[Integer] $dhcp_pool_size = undef,
+      Boolean $has_link_section = false,
+      Optional[Integer] $mtu = undef,
+      Optional[Stdlib::IP::Address::V4] $gateway = undef,
+| -%>
+[Match]
+Name=<%= $interface_name %>
+
+[Network]
+<% if $address_v4 { -%>
+<% if $address_v4 == 'dhcp' { -%>
+DHCP=yes
+<% } else { -%>
+Address=<%= $address_v4 %>
+<% } -%>
+<% } -%>
+<% if $address_v6 { -%>
+Address=<%= $address_v6 %>
+<% } -%>
+<% if $gateway { -%>
+Gateway=<%= $gateway %>
+<% } -%>
+<% if $is_dhcp_server { -%>
+DHCPServer=true
+<% } -%>
+<% $vlans.each | $vlan |{ -%>
+VLAN=<%= $interface_name %>.<%= $vlan %>
+<% } -%>
+<% $bridges.each | $bridge |{ -%>
+Bridge=<%= $bridge %>
+<% } -%>
+
+<% if $is_dhcp_server { -%>
+[DHCPServer]
+PoolOffset=<%= $dhcp_pool_offset %>
+PoolSize=<%= $dhcp_pool_size %>
+<% if $dns_v4 { -%>
+EmitDNS=yes
+DNS=<%= $dns_v4 %>
+<% } -%>
+<% } -%>
+
+<% if $has_link_section { -%>
+[Link]
+<% if $mtu { -%>
+MTUBytes=<%= $mtu %>
+<% } -%>
+<% } -%>
