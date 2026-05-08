@@ -1,0 +1,12 @@
+<%- | String $interface_name,
+      String $kind = '',
+      Optional[Integer] $vlan = undef,
+| -%>
+[NetDev]
+Name=<%= $interface_name %>
+Kind=<%= $kind %>
+
+<% if $vlan { %>
+[VLAN]
+Id=<%= $vlan %>
+<% } %>
