@@ -1,6 +1,6 @@
-define hypervisor::image(
-  String[1] $image_name = $name,
+define hypervisor::image (
   String[1] $download_url,
+  String[1] $image_name = $name,
   Optional[String] $sha256_checksum = undef,
 ) {
   file { "/var/lib/libvirt/images/${image_name}":

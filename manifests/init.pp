@@ -16,12 +16,12 @@ class hypervisor (
     'cloud-image-utils',
   ]
 
-  package{ $packages:
+  package { $packages:
     ensure => installed,
   }
 
   if ($purge_netplan) {
-    file {'/usr/lib/systemd/system-generators/netplan':
+    file { '/usr/lib/systemd/system-generators/netplan':
       ensure => absent,
       force  => true,
     }
@@ -63,8 +63,8 @@ class hypervisor (
 
       $acc + { $interface => {
         'bridges' => $new_bridges,
-        'vlans' => $new_vlans
-      }}
+        'vlans' => $new_vlans,
+      } }
     } else {
       $acc
     }

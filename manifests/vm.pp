@@ -1,10 +1,10 @@
-define hypervisor::vm(
-  String[1] $vm_name = $name,
+define hypervisor::vm (
   Integer $memory_mb,
   String $disk_size,
+  String[1] $vm_name = $name,
   String $disk_vg = 'vg0',
   Boolean $autostart = true,
-  String[1] $image_directory = "/var/lib/libvirt/images",
+  String[1] $image_directory = '/var/lib/libvirt/images',
   Optional[String] $iso = undef,
   Optional[String] $base_image = undef,
   Optional[Hash] $cloud_init_config = undef,
@@ -26,7 +26,7 @@ define hypervisor::vm(
   }
 
   if ($base_image) {
-    exec {"convert to physical disk ${vm_name}":
+    exec { "convert to physical disk ${vm_name}":
       command     => "qemu-img convert -f qcow2 -O raw ${base_image} /dev/${disk_vg}/${disk_name}",
       cwd         => $image_directory,
       path        => '/usr/bin',
@@ -41,7 +41,7 @@ define hypervisor::vm(
       'device' => 'cdrom',
       'bus'    => 'sata',
       'source' => {
-        'file' => "${image_directory}/${iso}"
+        'file' => "${image_directory}/${iso}",
       },
       'driver' => {
         'name'  => 'qemu',
@@ -58,7 +58,7 @@ define hypervisor::vm(
       'device' => 'cdrom',
       'bus'    => 'sata',
       'source' => {
-        'file' => "${image_directory}/${additonal_iso}"
+        'file' => "${image_directory}/${additonal_iso}",
       },
       'driver' => {
         'name'  => 'qemu',
@@ -69,15 +69,15 @@ define hypervisor::vm(
 
   if ($cloud_init_config) {
     $cloud_init_image = "${image_directory}/${vm_name}-cloud-init.img"
-    
+
     file { "${image_directory}/${vm_name}_cloud_init.cfg":
       ensure  => 'file',
       content => epp("${module_name}/cloud_init.cfg.epp", {
         data => $cloud_init_config
       }),
     }
-    
-    exec {"create cloud_init.cfg ${vm_name}":
+
+    exec { "create cloud_init.cfg ${vm_name}":
       command => "cloud-localds ${vm_name}-cloud-init.img ${vm_name}_cloud_init.cfg",
       cwd     => $image_directory,
       path    => '/usr/bin',
@@ -89,7 +89,7 @@ define hypervisor::vm(
       'device' => 'cdrom',
       'bus'    => 'sata',
       'source' => {
-        'file' => $cloud_init_image
+        'file' => $cloud_init_image,
       },
       'driver' => {
         'name'  => 'qemu',
@@ -101,7 +101,7 @@ define hypervisor::vm(
   }
 
   if ($additional_disks.length > 0) {
-    $additional_disks.each |String $disk_name, Hash $options|{
+    $additional_disks.each |String $disk_name, Hash $options| {
       $vg = $options['vg']
       $full_disk_name = "${vm_name}_${disk_name}"
 
@@ -112,7 +112,7 @@ define hypervisor::vm(
       }
     }
 
-    $libvirt_additional_disks = $additional_disks.map |String $disk_name, Hash $options|{
+    $libvirt_additional_disks = $additional_disks.map |String $disk_name, Hash $options| {
       {
         'type'   => 'block',
         'device' => 'disk',
@@ -130,8 +130,8 @@ define hypervisor::vm(
     $libvirt_additional_disks = []
   }
 
-  $vm_networks = $networks.map |String $network|{
-    {'network' => $network}
+  $vm_networks = $networks.map |String $network| {
+    { 'network' => $network }
   }
 
   $domconfig = {
@@ -158,7 +158,7 @@ define hypervisor::vm(
               arch => 'x86_64',
               machine => 'q35',
             },
-            values => 'hvm'
+            values => 'hvm',
           },
           loader   => {
             attrs  => {
@@ -166,9 +166,9 @@ define hypervisor::vm(
               type     => 'pflash',
             },
             values => '/usr/share/OVMF/OVMF_CODE_4M.ms.fd',
-          }
-        }
-      }
+          },
+        },
+      },
     }
   } else {
     $domconfig_uefi = {}
@@ -189,26 +189,28 @@ define hypervisor::vm(
             },
             values => $cpu_model,
           },
-        }
-      }
+        },
+      },
     }
   } else {
     $domconfig_cpu = {}
   }
 
+  $active_state = $ensure ? {
+    'running' => true,
+    'stopped' => false,
+    'present' => undef,
+    default   => undef,
+  }
+
   libvirt::domain { $vm_name:
-    boot         => 'hd',
-    domconf      => $domconfig + $domconfig_uefi + $domconfig_cpu,
-    interfaces   => [] + $vm_networks,
-    autostart    => $autostart,
-    active       => $ensure ? {
-      'running' => true,
-      'stopped' => false,
-      'present' => undef,
-      default   => undef,
-    },
-    replace      => true,
-    disks        => [
+    boot       => 'hd',
+    domconf    => $domconfig + $domconfig_uefi + $domconfig_cpu,
+    interfaces => [] + $vm_networks,
+    autostart  => $autostart,
+    active     => $active_state,
+    replace    => true,
+    disks      => [
       {
         'type'   => 'block',
         'device' => 'disk',
@@ -217,13 +219,13 @@ define hypervisor::vm(
           'dev' => "/dev/${disk_vg}/${disk_name}",
         },
         'driver' => {
-          'name'  => 'qemu',
-          'type'  => 'raw',
+          'name' => 'qemu',
+          'type' => 'raw',
         },
       },
     ] + $iso_disk
-      + $cloud_init_disk
-      + $libvirt_additional_disks
-      + $final_additional_isos,
+    + $cloud_init_disk
+    + $libvirt_additional_disks
+    + $final_additional_isos,
   }
 }
