@@ -1,4 +1,4 @@
-type Hypervisor::Network::Bridge = Struct[{
+type Hypervisor::Network::Bridge_definition = Struct[{
   network_name        => String[1],
   address_v4          => Optional[Variant[Enum['dhcp'], Stdlib::IP::Address::V4]],
   address_v6          => Optional[Stdlib::IP::Address::V6],

@@ -1,11 +1,34 @@
+# @summary
+#   Hypervisor base on qemu/kvm
+#
+# @param purge_netplan
+#   Should netplan been purged
+#
+# @param manage_firewall
+#   Automatic manage firewall rules (nftables)
+#
+# @param drop_libvirt_default_net
+#   Deletes the default network of libvirt
+#
+# @param interfaces
+#   Network interface Resources
+#
+# @param bridges
+#   Bridge interfaces
+#
+# @param images
+#   Images
+#
+# @param vms
+#   VMs
 class hypervisor (
   Boolean $purge_netplan = true,
   Boolean $manage_firewall = true,
   Boolean $drop_libvirt_default_net = true,
   Hash[String, Hash] $interfaces = {},
-  Hash[String, Hash] $bridges = {},
-  Hash[String, Hash] $images = {},
-  Hash[String, Hash] $vms = {},
+  Hash[String, Hypervisor::Network::Bridge_definition] $bridges = {},
+  Hash[String, Hypervisor::Image_definition] $images = {},
+  Hash[String, Hypervisor::Vm_definition] $vms = {},
 ) {
   class { 'libvirt':
     drop_default_net => $drop_libvirt_default_net,
@@ -16,12 +39,12 @@ class hypervisor (
     'cloud-image-utils',
   ]
 
-  package{ $packages:
+  package { $packages:
     ensure => installed,
   }
 
   if ($purge_netplan) {
-    file {'/usr/lib/systemd/system-generators/netplan':
+    file { '/usr/lib/systemd/system-generators/netplan':
       ensure => absent,
       force  => true,
     }
@@ -63,8 +86,8 @@ class hypervisor (
 
       $acc + { $interface => {
         'bridges' => $new_bridges,
-        'vlans' => $new_vlans
-      }}
+        'vlans' => $new_vlans,
+      } }
     } else {
       $acc
     }
