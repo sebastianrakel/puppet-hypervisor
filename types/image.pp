@@ -1,2 +1,0 @@
-type Hypervisor::Image = Struct[{
-}]

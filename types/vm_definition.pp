@@ -1,0 +1,1 @@
+type Hypervisor::VmDefinition = Struct[{}]

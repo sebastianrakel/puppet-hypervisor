@@ -1,3 +1,60 @@
+# @summary
+#   Creates a Linux bridge network for use with libvirt, managed via
+#   systemd-networkd. Optionally configures a VLAN sub-interface, a DHCP
+#   server, and the required nftables firewall rules.
+#
+# @param network_name
+#   Name of the libvirt network and base name for the bridge interface
+#   (`br-<network_name>0`). Defaults to the resource title.
+#
+# @param address_v4
+#   IPv4 address to assign to the bridge interface, either as a CIDR string
+#   (e.g. `'192.168.10.1/24'`) or the string `'dhcp'` to obtain an address
+#   via DHCP. Omit to leave the bridge without an IPv4 address.
+#
+# @param network_v4
+#   IPv4 network in CIDR notation (e.g. `'192.168.10.0/24'`). Required when
+#   acting as a DHCP server (i.e. when both `dhcp_pool_offset` and
+#   `dhcp_pool_size` are set). Used to generate masquerade and forwarding
+#   firewall rules.
+#
+# @param dns_v4
+#   IPv4 address of the DNS server advertised to DHCP clients. Only relevant
+#   when the bridge is acting as a DHCP server.
+#
+# @param address_v6
+#   IPv6 address to assign to the bridge interface in CIDR notation. Omit to
+#   leave the bridge without an IPv6 address.
+#
+# @param attach_to_interface
+#   Physical network interface to attach the bridge to. Required when `vlan`
+#   is set. When provided, a systemd-networkd `.network` unit is created for
+#   the interface (or the VLAN sub-interface) that enslaves it to the bridge.
+#
+# @param vlan
+#   VLAN ID to create as a sub-interface on `attach_to_interface`. When set,
+#   a VLAN `.netdev` and `.network` unit are created and the bridge is
+#   attached to the VLAN sub-interface rather than directly to the physical
+#   interface. Requires `attach_to_interface`.
+#
+# @param dhcp_pool_offset
+#   Offset from the start of the network at which the DHCP address pool
+#   begins. Must be set together with `dhcp_pool_size` to enable the built-in
+#   DHCP server.
+#
+# @param dhcp_pool_size
+#   Number of addresses in the DHCP pool. Must be set together with
+#   `dhcp_pool_offset` to enable the built-in DHCP server.
+#
+# @param mtu
+#   MTU to configure on the bridge interface. When `undef`, no `[Link]`
+#   section is written to the systemd-networkd unit and the kernel default is
+#   used.
+#
+# @param manage_firewall
+#   When `true` and the bridge is acting as a DHCP server, creates nftables
+#   rules to allow DNS (UDP/TCP 53), DHCP (UDP 67), forwarding of guest
+#   traffic, and NAT masquerading for outbound traffic.
 define hypervisor::network::bridge (
   String[1] $network_name = $name,
   Optional[Variant[Enum['dhcp'], Stdlib::IP::Address::V4]] $address_v4 = undef,

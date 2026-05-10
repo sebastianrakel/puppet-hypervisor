@@ -1,3 +1,71 @@
+# @summary
+#   Defines and manages a KVM/QEMU virtual machine via libvirt.
+#
+# @param memory_mb
+#   Amount of RAM to allocate to the VM, in mebibytes (MiB).
+#
+# @param disk_size
+#   Size of the primary disk logical volume (e.g. '20G'). Passed directly to
+#   the `logical_volume` resource.
+#
+# @param vm_name
+#   Name of the VM as known to libvirt. Defaults to the resource title.
+#
+# @param disk_vg
+#   LVM volume group in which the primary disk logical volume is created.
+#
+# @param autostart
+#   Whether the VM should be configured to start automatically when the host
+#   boots.
+#
+# @param image_directory
+#   Directory used for ISO and cloud-init image files.
+#
+# @param iso
+#   Filename of an ISO image (relative to `$image_directory`) to attach as a
+#   SATA CD-ROM drive. Omit when no installation media is needed.
+#
+# @param base_image
+#   Path to a qcow2 base image that will be converted and written to the
+#   primary disk logical volume once, immediately after the volume is created.
+#
+# @param cloud_init_config
+#   Hash of cloud-init user-data values. When provided, a cloud-init config
+#   file and seed image are generated and attached as a SATA CD-ROM drive.
+#
+# @param networks
+#   List of libvirt network names to attach to the VM as network interfaces.
+#
+# @param additional_disks
+#   Hash of extra disks to create and attach. Each key becomes part of the
+#   logical volume name (`<vm_name>_<key>`). Each value is a Hash with keys
+#   `vg` (volume group) and `size` (disk size string).
+#
+# @param uefi
+#   When true, configures the VM to boot via UEFI using OVMF firmware
+#   (`OVMF_CODE_4M.ms.fd`) with a q35 machine type.
+#
+# @param cpu_model
+#   Custom CPU model name to expose to the guest (e.g. `'Skylake-Client'`).
+#   When set, the domain is configured with `mode=custom` and `match=exact`.
+#   When `undef`, the hypervisor default CPU model is used.
+#
+# @param additional_isos
+#   List of additional ISO filenames (relative to `$image_directory`) to
+#   attach as extra SATA CD-ROM drives.
+#
+# @param cpu_count
+#   Number of virtual CPUs to assign to the VM.
+#
+# @param ensure
+#   Desired state of the VM domain:
+#   - `running`  — domain is defined and active.
+#   - `stopped`  — domain is defined but inactive.
+#   - `present`  — domain is defined; active state is unmanaged.
+#   - `absent`   — domain is removed.
+#
+# @param disk_bus
+#   Bus type used for all disk devices (`virtio` or `sata`).
 define hypervisor::vm (
   Integer $memory_mb,
   String $disk_size,

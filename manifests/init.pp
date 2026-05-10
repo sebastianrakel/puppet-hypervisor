@@ -1,11 +1,34 @@
+# @summary
+#   Hypervisor base on qemu/kvm
+#
+# @param purge_netplan
+#   Should netplan been purged
+#
+# @param manage_firewall
+#   Automatic manage firewall rules (nftables)
+#
+# @param drop_libvirt_default_net
+#   Deletes the default network of libvirt
+#
+# @param interfaces
+#   Network interface Resources
+#
+# @param bridges
+#   Bridge interfaces
+#
+# @param images
+#   Images
+#
+# @param vms
+#   VMs
 class hypervisor (
   Boolean $purge_netplan = true,
   Boolean $manage_firewall = true,
   Boolean $drop_libvirt_default_net = true,
   Hash[String, Hash] $interfaces = {},
-  Hash[String, Hash] $bridges = {},
-  Hash[String, Hash] $images = {},
-  Hash[String, Hash] $vms = {},
+  Hash[String, Hypervisor::Network::BridgeDefinition] $bridges = {},
+  Hash[String, Hypervisor::ImageDefinition] $images = {},
+  Hash[String, Hypervisor::VmDefinition] $vms = {},
 ) {
   class { 'libvirt':
     drop_default_net => $drop_libvirt_default_net,
