@@ -1,9 +1,6 @@
 # @summary
 #   Hypervisor base on qemu/kvm
 #
-# @param purge_netplan
-#   Should netplan been purged
-#
 # @param manage_firewall
 #   Automatic manage firewall rules (nftables)
 #
@@ -22,7 +19,6 @@
 # @param vms
 #   VMs
 class hypervisor (
-  Boolean $purge_netplan = true,
   Boolean $manage_firewall = true,
   Boolean $drop_libvirt_default_net = true,
   Hash[String, Hash] $interfaces = {},
@@ -41,17 +37,6 @@ class hypervisor (
 
   package { $packages:
     ensure => installed,
-  }
-
-  if ($purge_netplan) {
-    file { '/usr/lib/systemd/system-generators/netplan':
-      ensure => absent,
-      force  => true,
-    }
-
-    package { 'netplan.io':
-      ensure => purged,
-    }
   }
 
   $bridges.each | String $bridge_name, Hash $bridge | {
