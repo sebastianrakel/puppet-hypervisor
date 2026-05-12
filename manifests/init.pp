@@ -22,9 +22,9 @@ class hypervisor (
   Boolean $manage_firewall = true,
   Boolean $drop_libvirt_default_net = true,
   Hash[String, Hash] $interfaces = {},
-  Hash[String, Hypervisor::Network::Bridge_definition] $bridges = {},
-  Hash[String, Hypervisor::Image_definition] $images = {},
-  Hash[String, Hypervisor::Vm_definition] $vms = {},
+  Hash[String, Hash] $bridges = {},
+  Hash[String, Hash] $images = {},
+  Hash[String, Hash] $vms = {},
 ) {
   class { 'libvirt':
     drop_default_net => $drop_libvirt_default_net,
