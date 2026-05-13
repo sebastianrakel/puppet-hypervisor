@@ -79,7 +79,7 @@ define hypervisor::vm (
   Array[String] $networks = ['default'],
   Hash[String, Hash] $additional_disks = {},
   Boolean $uefi = false,
-  Optional[String] $cpu_model = undef,
+  Optional[String] $cpu_model = 'host-model',
   Array[String] $additional_isos = [],
   Integer $cpu_count = 1,
   Enum['running', 'present', 'stopped', 'absent'] $ensure = 'running',
@@ -243,22 +243,33 @@ define hypervisor::vm (
   }
 
   if ($cpu_model != undef) {
-    $domconfig_cpu = {
-      cpu => {
-        attrs => {
-          mode  => 'custom',
-          match => 'exact',
-          check => 'partial',
-        },
-        values   => {
-          model => {
-            attrs => {
-              fallback  => 'allow',
+    if ($cpu_model == 'host-model') {
+      $domconfig_cpu = {
+        cpu => {
+          attrs => {
+            mode  => 'host-model',
+            check => 'partial',
+          }
+        }
+      }
+    } else {
+      $domconfig_cpu = {
+        cpu => {
+          attrs => {
+            mode  => 'custom',
+            match => 'exact',
+            check => 'partial',
+          },
+          values   => {
+            model => {
+              attrs => {
+                fallback  => 'allow',
+              },
+              values => $cpu_model,
             },
-            values => $cpu_model,
           },
         },
-      },
+      }
     }
   } else {
     $domconfig_cpu = {}
