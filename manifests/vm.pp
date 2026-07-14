@@ -84,6 +84,7 @@ define hypervisor::vm (
   Integer $cpu_count = 1,
   Enum['running', 'present', 'stopped', 'absent'] $ensure = 'running',
   Enum['virtio', 'sata'] $disk_bus = 'virtio',
+  String[1] $devices_profile = 'default',
 ) {
   $disk_name = "${vm_name}_disk"
 
@@ -283,13 +284,14 @@ define hypervisor::vm (
   }
 
   libvirt::domain { $vm_name:
-    boot       => 'hd',
-    domconf    => $domconfig + $domconfig_uefi + $domconfig_cpu,
-    interfaces => [] + $vm_networks,
-    autostart  => $autostart,
-    active     => $active_state,
-    replace    => true,
-    disks      => [
+    boot            => 'hd',
+    domconf         => $domconfig + $domconfig_uefi + $domconfig_cpu,
+    devices_profile => $devices_profile,
+    interfaces      => [] + $vm_networks,
+    autostart       => $autostart,
+    active          => $active_state,
+    replace         => true,
+    disks           => [
       {
         'type'   => 'block',
         'device' => 'disk',
