@@ -84,7 +84,7 @@ define hypervisor::vm (
   Integer $cpu_count = 1,
   Enum['running', 'present', 'stopped', 'absent'] $ensure = 'running',
   Enum['virtio', 'sata'] $disk_bus = 'virtio',
-  String[1] $devices_profile = 'default',
+  String[1] $devices_profile = $hypervisor::vm_default_devices_profile,
 ) {
   $disk_name = "${vm_name}_disk"
 

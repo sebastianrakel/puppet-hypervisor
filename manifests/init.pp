@@ -25,6 +25,7 @@ class hypervisor (
   Hash[String, Hash] $bridges = {},
   Hash[String, Hash] $images = {},
   Hash[String, Hash] $vms = {},
+  String[1] $vm_default_devices_profile = 'default',
 ) {
   class { 'libvirt':
     drop_default_net => $drop_libvirt_default_net,
