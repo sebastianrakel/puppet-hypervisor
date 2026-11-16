@@ -87,8 +87,8 @@ class hypervisor (
         address_v4     => $infos['address_v4'],
         address_v6     => $infos['address_v6'],
         gateway        => $infos['gateway'],
-        vlans          => $interface_map[$interface]['vlans'],
-        bridges        => $interface_map[$interface]['bridges'],
+        vlans          => get($interface_map, "${interface}.vlans", []),
+        bridges        => get($interface_map, "${interface}.bridges", []),
       }),
     }
   }
