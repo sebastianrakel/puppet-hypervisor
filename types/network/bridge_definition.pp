@@ -7,4 +7,5 @@ type Hypervisor::Network::Bridge_definition = Struct[{
   dhcp_address_start  => Optional[Integer],
   dhcp_address_size   => Optional[Integer],
   mtu                 => Optional[Integer],
+  nat                 => Optional[Boolean],
 }]

@@ -67,6 +67,7 @@ define hypervisor::network::bridge (
   Optional[Integer] $dhcp_pool_size = undef,
   Optional[Integer] $mtu = undef,
   Boolean $manage_firewall = true,
+  Boolean $nat = false,
 ) {
   $bridge_interface_name = "br-${network_name}0"
   $is_dhcp_server = $dhcp_pool_size and $dhcp_pool_offset
@@ -120,6 +121,7 @@ define hypervisor::network::bridge (
       has_link_section => $mtu != undef,
       mtu              => $mtu,
       dns_v4           => $dns_v4,
+      nat              => $nat,
     }),
   }
 

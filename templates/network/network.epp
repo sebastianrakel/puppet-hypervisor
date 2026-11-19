@@ -10,6 +10,7 @@
       Boolean $has_link_section = false,
       Optional[Integer] $mtu = undef,
       Optional[Stdlib::IP::Address::V4] $gateway = undef,
+      Boolean $nat = false,
 | -%>
 
 [Match]
@@ -39,6 +40,10 @@ VLAN=<%= $interface_name %>.<%= $vlan %>
 
 <% $bridges.each | $bridge |{ -%>
 Bridge=<%= $bridge %>
+<% } -%>
+<% if $nat { -%>
+IPMasquerade=ipv4
+IPv4Forwarding=yes
 <% } -%>
 
 <% if $is_dhcp_server { -%>
